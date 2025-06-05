@@ -33,23 +33,11 @@ jobs:
             goarch: amd64
           - goos: windows
             goarch: arm64
-          - goos: windows
-            goarch: arm
-            goarm: 6
-          - goos: windows
-            goarch: arm
-            goarm: 7
           # --- macOS ---
           - goos: darwin
             goarch: amd64
           - goos: darwin
             goarch: arm64
-          - goos: darwin
-            goarch: arm
-            goarm: 6
-          - goos: darwin
-            goarch: arm
-            goarm: 7
     steps:
       - name: Checkout main branch
         uses: actions/checkout@v3
@@ -81,18 +69,23 @@ jobs:
       - name: Build the project
         run: |
           if [ "${{ matrix.goarch }}" = "arm" ]; then
-            export GOARM=${{ matrix.goarm }}
+           export GOARM=${{ matrix.goarm }}
+           OUTFILE=inonius_v3cli-${{ matrix.goos }}-${{ matrix.goarch }}v${{ matrix.goarm }}
+          else
+           OUTFILE=inonius_v3cli-${{ matrix.goos }}-${{ matrix.goarch }}
           fi
           if [ "${{ matrix.goos }}" == "windows" ]; then
-            GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o inonius_v3cli-${{ matrix.goos }}-${{ matrix.goarch }}.exe
+           GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} GOARM=${GOARM:-} go build -o ${OUTFILE}.exe
           else
-            GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o inonius_v3cli-${{ matrix.goos }}-${{ matrix.goarch }}
+           GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} GOARM=${GOARM:-} go build -o ${OUTFILE}
           fi
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: inonius_v3cli-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.goarch == 'arm' && format('v{0}', matrix.goarm) || '' }}
-          path: inonius_v3cli-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.goarch == 'arm' && format('v{0}', matrix.goarm) || ''}}*
+          path: |
+            inonius_v3cli-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.goarch == 'arm' && format('v{0}', matrix.goarm) || '' }}
+            inonius_v3cli-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.goarch == 'arm' && format('v{0}', matrix.goarm) || '' }}.exe
 
       #      - name: Bump version and push tag
       #        id: bump
@@ -107,7 +100,7 @@ jobs:
     needs: build
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: ./artifacts
       - name: create release
