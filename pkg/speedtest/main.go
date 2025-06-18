@@ -208,7 +208,6 @@ func sendTelemetry(telemetryServer defs.TelemetryServer, download, upload, pingV
 	req.Header.Set("Content-Type", wr.FormDataContentType())
 	req.Header.Set("User-Agent", fmt.Sprintf("inonius_v3cli_%s", runtime.GOARCH))
 
-	fmt.Println("telemetry body", buf.String())
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.Debugf("Error when making HTTP request: %s", err)
