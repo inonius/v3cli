@@ -10,6 +10,7 @@ import (
 	"math"
 	"mime/multipart"
 	"net/http"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -205,7 +206,7 @@ func sendTelemetry(telemetryServer defs.TelemetryServer, download, upload, pingV
 		return "", err
 	}
 	req.Header.Set("Content-Type", wr.FormDataContentType())
-	req.Header.Set("User-Agent", "inonius_v3cli")
+	req.Header.Set("User-Agent", fmt.Sprintf("inonius_v3cli_%s", runtime.GOARCH))
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
