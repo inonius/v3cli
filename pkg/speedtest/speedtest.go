@@ -96,6 +96,7 @@ func Speedtest(c clientTypes.Client, ctx context.Context, logger *slog.Logger, s
 		wg.Add(1)
 		jobs <- PingJob{Index: idx, Server: server}
 	}
+	close(jobs)
 
 	go func() {
 		wg.Wait()
@@ -137,15 +138,14 @@ Loop:
 }
 
 func pingWorker(jobs <-chan PingJob, results chan<- PingResult, wg *sync.WaitGroup, srcIp, network string, noICMP bool) {
-	for {
-		job := <-jobs
+	for job := range jobs {
 		server := job.Server
 		// get the URL of the speed test server from the JSON
 		u, err := server.GetURL()
 		if err != nil {
 			log.Debugf("Server URL is invalid for %s (%s), skipping", server.Name, server.Server)
 			wg.Done()
-			return
+			continue
 		}
 
 		// check the server is up by accessing the ping URL and checking its returned value == empty and status code == 200
@@ -158,7 +158,7 @@ func pingWorker(jobs <-chan PingJob, results chan<- PingResult, wg *sync.WaitGro
 			if err != nil {
 				log.Debugf("Can't ping server %s (%s), skipping", server.Name, u.Hostname())
 				wg.Done()
-				return
+				continue
 			}
 			// return result
 			results <- PingResult{Index: job.Index, Ping: ping}
