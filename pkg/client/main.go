@@ -19,7 +19,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-var Version = "0.0.6"
+var Version = "0.0.8"
 var configFile string
 var ignoreTlsError bool
 var logger *slog.Logger
@@ -375,7 +375,7 @@ func init() {
 			"LibreSpeed  Copyright (C) 2016-2020 Federico Dossena\n" +
 			"librespeed-cli  Copyright (C) 2020 Maddie Zhan\n" +
 			"librespeed.org  Copyright (C)\n" +
-			"Modified by iNonius Project (C) 2025\n")
+			"Modified by iNonius Project (C) 2026\n")
 
 	cmd.PersistentFlags().BoolP("help", "?", false, "Show help")
 	cmd.PersistentFlags().BoolP("debug", "d", false, "Debug mode")
