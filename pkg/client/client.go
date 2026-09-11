@@ -10,7 +10,6 @@ import (
 	"net/url"
 	"os"
 	"path"
-	"runtime"
 
 	"github.com/google/uuid"
 	clientTypes "github.com/inonius/v3cli/api/client"
@@ -236,7 +235,7 @@ func (c *SpeedtestClient) call(ctx context.Context, method string, endpoint stri
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", fmt.Sprintf("inonius_v3cli_%s_%s", Version, runtime.GOARCH))
+	req.Header.Set("User-Agent", UserAgent())
 	req = req.WithContext(ctx)
 
 	response, err := c.v3Client.HttpClient.Do(req)
