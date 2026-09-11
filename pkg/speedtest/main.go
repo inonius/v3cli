@@ -10,7 +10,6 @@ import (
 	"math"
 	"mime/multipart"
 	"net/http"
-	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -96,7 +95,7 @@ func doSpeedTest(c clientTypes.Client, ctx *context.Context, logger *slog.Logger
 			telemetryServer.Server = currentServer.Server
 			telemetryServer.Path = "/results/telemetry.php"
 
-			id, err := sendTelemetry(telemetryServer, downloadValue, uploadValue, p, jitter, currentServer.TLog.String(), extra)
+			id, err := sendTelemetry(telemetryServer, downloadValue, uploadValue, p, jitter, currentServer.TLog.String(), extra, c.UserAgent)
 			if err != nil {
 				logger.Error("Error when sending telemetry data:", "error", err)
 				return nil, err
@@ -129,7 +128,7 @@ func doSpeedTest(c clientTypes.Client, ctx *context.Context, logger *slog.Logger
 }
 
 // sendTelemetry omit ispInfo from original code
-func sendTelemetry(telemetryServer defs.TelemetryServer, download, upload, pingVal, jitter float64, logs string, extra defs.TelemetryExtra) (string, error) {
+func sendTelemetry(telemetryServer defs.TelemetryServer, download, upload, pingVal, jitter float64, logs string, extra defs.TelemetryExtra, userAgent string) (string, error) {
 	var buf bytes.Buffer
 	wr := multipart.NewWriter(&buf)
 
@@ -206,7 +205,7 @@ func sendTelemetry(telemetryServer defs.TelemetryServer, download, upload, pingV
 		return "", err
 	}
 	req.Header.Set("Content-Type", wr.FormDataContentType())
-	req.Header.Set("User-Agent", fmt.Sprintf("inonius_v3cli_%s", runtime.GOARCH))
+	req.Header.Set("User-Agent", userAgent)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

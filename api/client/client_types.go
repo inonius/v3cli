@@ -96,4 +96,5 @@ type Client struct {
 	HttpClient *http.Client
 	Config     *Config
 	Result     *Result
+	UserAgent  string
 }

@@ -9,6 +9,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"runtime"
 	"strings"
 	"time"
 
@@ -23,6 +24,11 @@ var Version = "0.0.8"
 var configFile string
 var ignoreTlsError bool
 var logger *slog.Logger
+
+// UserAgent returns the User-Agent sent to servers. "inonius_v3cli_arm64/v0.0.8"
+func UserAgent() string {
+	return fmt.Sprintf("inonius_v3cli_%s/v%s", runtime.GOARCH, Version)
+}
 
 var cmd *cobra.Command = &cobra.Command{
 	Use:     "inonius_v3cli",
@@ -160,6 +166,7 @@ func fn(cmd *cobra.Command, args []string) error {
 	// client初期化
 	clientInstance := clientTypes.Client{
 		HttpClient: httpClient,
+		UserAgent:  UserAgent(),
 		Config: &clientTypes.Config{
 			Endpoint:       viper.GetString("endpoint"),
 			IPv4Endpoint:   viper.GetString("ipv4-endpoint"),
